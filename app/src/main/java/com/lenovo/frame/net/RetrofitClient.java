@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.core.ObservableTransformer;
 import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -86,7 +87,7 @@ public class RetrofitClient {
             mContext = context;
         if (url != null)
             mUrl = url;
-        return RetrofitClientHolder.sInstance;
+        return new RetrofitClient(context, url,null);
     }
 
     public static RetrofitClient getInstance(Context context, String url, Map<String, String> headers) {
@@ -96,7 +97,12 @@ public class RetrofitClient {
             mUrl = url;
         if (headers != null)
             mHeaders = headers;
-        return RetrofitClientHolder.sInstance;
+        return new RetrofitClient(context, url,headers);
+    }
+
+    public void destony() {
+        retrofit = null;
+        okHttpClient = null;
     }
 
     private static class RetrofitClientHolder {
@@ -112,6 +118,14 @@ public class RetrofitClient {
                     .observeOn(AndroidSchedulers.mainThread());
         }
     };
+
+    public static class HttpResponseFunc<T> implements Function<Throwable, Observable<T>> {
+        @Override
+        public Observable<T> apply(Throwable throwable) throws Exception {
+
+            return Observable.error(ExceptionHandle.handleException(throwable));
+        }
+    }
 
     public void selectAllUser(Observer<?> observer){
         api.selectAllUser().compose(schedulersTransformer).subscribe(observer);
