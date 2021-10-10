@@ -24,12 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.ButterKnife;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 /**
  * @author feizai
  * @date 12/21/2020 021 9:44:14 PM
  */
-public abstract class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment implements IGetPageName {
 
     int resLayout;
     //用户同意权限权限申请
@@ -38,6 +40,8 @@ public abstract class BaseFragment extends Fragment {
     public Map<Integer, Runnable> disallowablePermissionRunnables = new HashMap<>();
     //用户彻底禁止权限申请
     public Map<Integer, Runnable> completebanPermissionRunnables = new HashMap<>();
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public BaseFragment(int resLayout){
         this.resLayout=resLayout;
@@ -157,5 +161,18 @@ public abstract class BaseFragment extends Fragment {
             localIntent.putExtra("com.android.settings.ApplicationPkgName", getActivity().getPackageName());
         }
         return localIntent;
+    }
+
+    @Override
+    public void onDestroy() {
+        compositeDisposable.dispose();
+        super.onDestroy();
+    }
+
+    /**
+     * 添加Disposable
+     */
+    protected void addDisposable(Disposable disposable) {
+        compositeDisposable.add(disposable);
     }
 }

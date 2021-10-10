@@ -28,6 +28,7 @@ public class TextActivity extends BaseActivity {
 
     @Override
     protected void initView() {
+        setSwipeBackEnable(true);
         textView = findViewById(R.id.login);
         client = RetrofitClient.getInstance(this);
         retrofitClient = RetrofitClient.getInstance(this, "http://172.21.58.82:8080/smm/");

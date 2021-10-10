@@ -91,4 +91,7 @@ dependencies {
     // 微信MMKV
     implementation 'com.tencent:mmkv:1.2.10'
 
+    // 右滑返回
+    implementation("me.imid.swipebacklayout.lib:library:1.1.0")
+
 }

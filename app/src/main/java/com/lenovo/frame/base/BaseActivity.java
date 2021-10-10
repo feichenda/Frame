@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,8 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.ButterKnife;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
+import me.imid.swipebacklayout.lib.Utils;
+import me.imid.swipebacklayout.lib.app.SwipeBackActivityBase;
+import me.imid.swipebacklayout.lib.app.SwipeBackActivityHelper;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements SwipeBackActivityBase,IGetPageName {
 
     //布局文件ID
     int resource;
@@ -33,6 +40,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     //用户彻底禁止权限申请
     public Map<Integer, Runnable> completebanPermissionRunnables = new HashMap<>();
 
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    private SwipeBackActivityHelper mHelper;
+
     public BaseActivity(int resLayout) {
         resource = resLayout;
     }
@@ -40,9 +51,37 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mHelper = new SwipeBackActivityHelper(this);
+        mHelper.onActivityCreate();
         setContentView(resource);
         ButterKnife.bind(this);
         initView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        compositeDisposable.dispose();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mHelper.onPostCreate();
+    }
+
+    /**
+     * 是否开启左滑返回 true:开启
+     * @param enable
+     */
+    @Override
+    public void setSwipeBackEnable(boolean enable) {
+        getSwipeBackLayout().setEnableGesture(enable);
+    }
+
+    @Override
+    public SwipeBackLayout getSwipeBackLayout() {
+        return mHelper.getSwipeBackLayout();
     }
 
     //活动初始化自定义操作
@@ -167,5 +206,18 @@ public abstract class BaseActivity extends AppCompatActivity {
             localIntent.putExtra("com.android.settings.ApplicationPkgName", getPackageName());
         }
         return localIntent;
+    }
+
+    @Override
+    public void scrollToFinishActivity() {
+        Utils.convertActivityToTranslucent(this);
+        getSwipeBackLayout().scrollToFinishActivity();
+    }
+
+    /**
+     * 添加Disposable
+     */
+    protected void addDisposable(Disposable disposable) {
+        compositeDisposable.add(disposable);
     }
 }
