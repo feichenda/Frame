@@ -27,7 +27,7 @@ public class SecondActivity extends BaseActivity {
     }
 
     @Override
-    public void onActivityResult(ActivityResult result) {
+    protected void activityResultCallback(ActivityResult result) {
 
     }
 

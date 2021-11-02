@@ -1,5 +1,6 @@
 package com.lenovo.frame;
 
+import android.Manifest;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
@@ -21,23 +22,12 @@ public class FirstActivity extends BaseActivity {
     @Override
     protected void initView() {
         setSwipeBackEnable(true);
-        findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerForActivityResult(MainActivity.class);
-            }
-        });
 
-        findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerForActivityResult(SecondActivity.class);
-            }
-        });
+
     }
 
     @Override
-    public void onActivityResult (ActivityResult result) {
+    protected void activityResultCallback(ActivityResult result) {
         Intent data = result.getData();
         int resultCode = result.getResultCode();
         if (resultCode == RESULT_OK)
@@ -45,8 +35,31 @@ public class FirstActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, new Runnable() {
+            @Override
+            public void run() {
+//                Toast.makeText(FirstActivity.this, "tongyi", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        registerForActivityResult(MainActivity.class);
+                    }
+                });
+
+                findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        registerForActivityResult(SecondActivity.class);
+                    }
+                });
+            }
+        },null,null);
+    }
+
+    @Override
     public String getPageName() {
         return null;
     }
-
 }

@@ -32,25 +32,65 @@ import me.imid.swipebacklayout.lib.Utils;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivityBase;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivityHelper;
 
-public abstract class BaseActivity extends AppCompatActivity implements SwipeBackActivityBase, IGetPageName, ActivityResultCallback<ActivityResult> {
+public abstract class BaseActivity extends AppCompatActivity implements SwipeBackActivityBase, IGetPageName {
 
     //布局文件ID
     int resource;
     //用户同意权限权限申请
-    public Map<Integer, Runnable> allowablePermissionRunnables = new HashMap<>();
+    private Map<Integer, Runnable> allowablePermissionRunnables = new HashMap<>();
     //用户拒绝权限申请
-    public Map<Integer, Runnable> disallowablePermissionRunnables = new HashMap<>();
+    private Map<Integer, Runnable> disallowablePermissionRunnables = new HashMap<>();
     //用户彻底禁止权限申请
-    public Map<Integer, Runnable> completebanPermissionRunnables = new HashMap<>();
+    private Map<Integer, Runnable> completebanPermissionRunnables = new HashMap<>();
+    //用户同意权限权限申请时做的逻辑
+    private Runnable allowableRunnable;
+    //用户拒绝权限申请时做的逻辑
+    private Runnable disallowableRunnable;
+    //用户彻底禁止权限申请时做的逻辑
+    private Runnable completebanRunable;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private SwipeBackActivityHelper mHelper;
 
     private ActivityResultLauncher<Intent> intentActivityResultLauncher;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private ActivityResultLauncher<String[]> requestPermissionsLauncher;
 
     public BaseActivity(int resLayout) {
         resource = resLayout;
+        disallowableRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(BaseActivity.this, "您以禁止获取权限", Toast.LENGTH_SHORT).show();
+//                finish();
+            }
+        };
+        completebanRunable = new Runnable() {
+            @Override
+            public void run() {
+                new MaterialDialog.Builder(BaseActivity.this)
+                        .canceledOnTouchOutside(false)
+                        .title("警告")
+                        .content("跳转到设置以获取权限")
+                        .icon(getResources().getDrawable(R.drawable.ic_error))
+                        .positiveText("确认")
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                startActivity(getAppDetailSettingIntent());
+                            }
+                        })
+                        .negativeText("取消")
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                finish();
+                            }
+                        })
+                        .show();
+            }
+        };
     }
 
     @Override
@@ -60,7 +100,11 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
         mHelper.onActivityCreate();
         setContentView(resource);
         ButterKnife.bind(this);
-        intentActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this);
+        intentActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            activityResultCallback(result);
+        });
+        requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), result -> {});
+        requestPermissionsLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {});
         initView();
     }
 
@@ -94,6 +138,9 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
     //活动初始化自定义操作
     protected abstract void initView();
 
+    //activity返回值的处理
+    protected abstract void activityResultCallback(ActivityResult result);
+
     /**
      * 活动跳转，无返回值
      *
@@ -114,14 +161,17 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
         startActivityForResult(new Intent(this, activityclass), requsetCode);
     }
 
+    /**
+     * 活动跳转，有返回值
+     *
+     * @param activityclass 将要跳转的活动的class
+     */
     protected void registerForActivityResult(Class activityclass) {
         intentActivityResultLauncher.launch(new Intent(this, activityclass));
     }
 
-//    protected abstract void activityResultCallback(ActivityResult result);
-
     /**
-     * 请求权限
+     * 请求单一权限
      *
      * @param id                   请求授权的id 唯一标识即可
      * @param permission           请求的权限
@@ -129,6 +179,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
      * @param disallowableRunnable 禁止权限后的操作，可以为空，为空默认操作弹Toast
      * @param completebanRunable   彻底禁止权限后的操作，可以为空，为空默认操作询问是否到设置里打开权限，确认这跳转，取消则结束activity
      */
+    @Deprecated
     public void requestPermission(int id, String permission, Runnable allowableRunnable, Runnable disallowableRunnable, Runnable completebanRunable) {
         if (allowableRunnable == null) {
             throw new IllegalArgumentException("allowableRunnable == null");
@@ -158,6 +209,139 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
         }
     }
 
+    /**
+     * 请求单一权限
+     *
+     * @param permission           请求的权限
+     * @param allowableRunnable    同意授权后的操作，不能为空
+     * @param disallowableRunnable 禁止权限后的操作，可以为空，为空默认操作弹Toast
+     * @param completebanRunable   彻底禁止权限后的操作，可以为空，为空默认操作询问是否到设置里打开权限，确认这跳转，取消则结束activity
+     */
+    public void requestPermission(String permission, Runnable allowableRunnable, Runnable disallowableRunnable, Runnable completebanRunable) {
+        if (allowableRunnable == null) {
+            throw new IllegalArgumentException("allowableRunnable == null");
+        }
+
+        allowablePermissionRunnables.put(1, allowableRunnable);
+        this.allowableRunnable = allowableRunnable;
+//        disallowablePermissionRunnables.put(id, disallowableRunnable);
+//        completebanPermissionRunnables.put(id, completebanRunable);
+        if (disallowableRunnable != null) {
+            disallowablePermissionRunnables.put(1, disallowableRunnable);
+            this.disallowableRunnable = disallowableRunnable;
+        }
+        if (completebanRunable != null) {
+            completebanPermissionRunnables.put(1, completebanRunable);
+            this.completebanRunable = completebanRunable;
+        }
+        //版本判断
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //检查是否拥有权限
+            int checkCallPhonePermission = ContextCompat.checkSelfPermission(getApplicationContext(), permission);
+            if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
+                //申请权限
+                requestPermissionLauncher.launch(permission);
+            } else {
+                allowableRunnable.run();
+            }
+        } else {
+            allowableRunnable.run();
+        }
+    }
+
+    /**
+     * 请求单一权限
+     *
+     * @param id                   请求授权的id 唯一标识即可
+     * @param permissions          请求的权限组
+     * @param allowableRunnable    同意授权后的操作，不能为空
+     * @param disallowableRunnable 禁止权限后的操作，可以为空，为空默认操作弹Toast
+     * @param completebanRunable   彻底禁止权限后的操作，可以为空，为空默认操作询问是否到设置里打开权限，确认这跳转，取消则结束activity
+     */
+    @Deprecated
+    public void requestPermissions(int id, String[] permissions, Runnable allowableRunnable, Runnable disallowableRunnable, Runnable completebanRunable) {
+        if (allowableRunnable == null) {
+            throw new IllegalArgumentException("allowableRunnable == null");
+        }
+
+        allowablePermissionRunnables.put(id, allowableRunnable);
+//        disallowablePermissionRunnables.put(id, disallowableRunnable);
+//        completebanPermissionRunnables.put(id, completebanRunable);
+        if (disallowableRunnable != null) {
+            disallowablePermissionRunnables.put(id, disallowableRunnable);
+        }
+        if (completebanRunable != null) {
+            completebanPermissionRunnables.put(id, completebanRunable);
+        }
+        //版本判断
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] result = new String[permissions.length];
+            int count = 0;
+            //检查是否拥有权限
+            for (String permission : permissions) {
+                int checkCallPhonePermission = ContextCompat.checkSelfPermission(getApplicationContext(), permission);
+                if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
+                    //申请权限
+                    result[count++] = permission;
+                }
+            }
+            if (count == 0) {
+                allowableRunnable.run();
+            }else {
+                requestPermissionsLauncher.launch(permissions);
+            }
+        } else {
+            allowableRunnable.run();
+        }
+    }
+
+    /**
+     * 请求多权限
+     *
+     * @param permissions          请求的权限组
+     * @param allowableRunnable    同意授权后的操作，不能为空
+     * @param disallowableRunnable 禁止权限后的操作，可以为空，为空默认操作弹Toast
+     * @param completebanRunable   彻底禁止权限后的操作，可以为空，为空默认操作询问是否到设置里打开权限，确认这跳转，取消则结束activity
+     */
+    public void requestPermissions(String[] permissions, Runnable allowableRunnable, Runnable disallowableRunnable, Runnable completebanRunable) {
+        if (allowableRunnable == null) {
+            throw new IllegalArgumentException("allowableRunnable == null");
+        }
+
+        allowablePermissionRunnables.put(1, allowableRunnable);
+        this.allowableRunnable = allowableRunnable;
+//        disallowablePermissionRunnables.put(id, disallowableRunnable);
+//        completebanPermissionRunnables.put(id, completebanRunable);
+        if (disallowableRunnable != null) {
+            disallowablePermissionRunnables.put(1, disallowableRunnable);
+            this.disallowableRunnable = disallowableRunnable;
+        }
+        if (completebanRunable != null) {
+            completebanPermissionRunnables.put(1, completebanRunable);
+            this.completebanRunable = completebanRunable;
+        }
+        //版本判断
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] result = new String[permissions.length];
+            int count = 0;
+            //检查是否拥有权限
+            for (String permission : permissions) {
+                int checkCallPhonePermission = ContextCompat.checkSelfPermission(getApplicationContext(), permission);
+                if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
+                    //申请权限
+                    result[count++] = permission;
+                }
+            }
+            if (count == 0) {
+                allowableRunnable.run();
+            }else {
+                requestPermissionsLauncher.launch(permissions);
+            }
+        } else {
+            allowableRunnable.run();
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -169,7 +353,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                     if (disallowRun != null) {
                         disallowRun.run();
                     } else {
-                        Toast.makeText(this, "您以禁止获取该权限", Toast.LENGTH_SHORT).show();
+                        this.disallowableRunnable.run();
                     }
                 } else {//表明用户已经彻底禁止弹出权限请求
                     //这里一般会提示用户进入权限设置界面
@@ -177,25 +361,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                     if (completebanRun != null) {
                         completebanRun.run();
                     } else {
-                        new MaterialDialog.Builder(this)
-                                .title("警告")
-                                .content("跳转到设置以获取权限")
-                                .icon(getResources().getDrawable(R.drawable.ic_error))
-                                .positiveText("确认")
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        startActivity(getAppDetailSettingIntent());
-                                    }
-                                })
-                                .negativeText("取消")
-                                .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        finish();
-                                    }
-                                })
-                                .show();
+                        this.completebanRunable.run();
                     }
                 }
                 return;
@@ -203,6 +369,10 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 Runnable allowRun = allowablePermissionRunnables.get(requestCode);
                 if (allowRun != null) {
                     allowRun.run();
+                    continue;
+                } else if (this.allowableRunnable != null) {
+                    this.allowableRunnable.run();
+                    continue;
                 } else {
                     throw new NullPointerException("allowRun == null");
                 }

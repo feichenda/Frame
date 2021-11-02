@@ -32,7 +32,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onActivityResult(ActivityResult result) {
+    public void activityResultCallback(ActivityResult result) {
 
     }
 }
