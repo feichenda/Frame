@@ -5,9 +5,12 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +32,7 @@ import me.imid.swipebacklayout.lib.Utils;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivityBase;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivityHelper;
 
-public abstract class BaseActivity extends AppCompatActivity implements SwipeBackActivityBase,IGetPageName {
+public abstract class BaseActivity extends AppCompatActivity implements SwipeBackActivityBase, IGetPageName, ActivityResultCallback<ActivityResult> {
 
     //布局文件ID
     int resource;
@@ -44,6 +47,8 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
 
     private SwipeBackActivityHelper mHelper;
 
+    private ActivityResultLauncher<Intent> intentActivityResultLauncher;
+
     public BaseActivity(int resLayout) {
         resource = resLayout;
     }
@@ -55,6 +60,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
         mHelper.onActivityCreate();
         setContentView(resource);
         ButterKnife.bind(this);
+        intentActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this);
         initView();
     }
 
@@ -72,6 +78,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
 
     /**
      * 是否开启左滑返回 true:开启
+     *
      * @param enable
      */
     @Override
@@ -89,6 +96,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
 
     /**
      * 活动跳转，无返回值
+     *
      * @param activityclass 将要跳转的活动的class
      */
     protected void startActivity(Class activityclass) {
@@ -97,15 +105,24 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
 
     /**
      * 活动跳转，有返回值
+     *
      * @param activityclass 将要跳转的活动的class
      * @param requsetCode   请求跳转的id 唯一标识符即可
      */
+    @Deprecated
     protected void startActivityForResult(Class activityclass, int requsetCode) {
         startActivityForResult(new Intent(this, activityclass), requsetCode);
     }
 
+    protected void registerForActivityResult(Class activityclass) {
+        intentActivityResultLauncher.launch(new Intent(this, activityclass));
+    }
+
+//    protected abstract void activityResultCallback(ActivityResult result);
+
     /**
      * 请求权限
+     *
      * @param id                   请求授权的id 唯一标识即可
      * @param permission           请求的权限
      * @param allowableRunnable    同意授权后的操作，不能为空
@@ -151,15 +168,15 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                     Runnable disallowRun = disallowablePermissionRunnables.get(requestCode);
                     if (disallowRun != null) {
                         disallowRun.run();
-                    }else{
-                        Toast.makeText(this,"您以禁止获取该权限",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "您以禁止获取该权限", Toast.LENGTH_SHORT).show();
                     }
                 } else {//表明用户已经彻底禁止弹出权限请求
                     //这里一般会提示用户进入权限设置界面
                     Runnable completebanRun = completebanPermissionRunnables.get(requestCode);
                     if (completebanRun != null) {
                         completebanRun.run();
-                    }else{
+                    } else {
                         new MaterialDialog.Builder(this)
                                 .title("警告")
                                 .content("跳转到设置以获取权限")
@@ -186,8 +203,8 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 Runnable allowRun = allowablePermissionRunnables.get(requestCode);
                 if (allowRun != null) {
                     allowRun.run();
-                }else {
-                    throw  new NullPointerException("allowRun == null");
+                } else {
+                    throw new NullPointerException("allowRun == null");
                 }
             }
         }
