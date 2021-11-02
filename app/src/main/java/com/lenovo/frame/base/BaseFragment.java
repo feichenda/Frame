@@ -64,7 +64,7 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
      * @param id                   请求授权的id 唯一标识即可
      * @param permission           请求的权限
      * @param allowableRunnable    同意授权后的操作，不能为空
-     * @param disallowableRunnable 禁止权限后的操作，不能为空
+     * @param disallowableRunnable 禁止权限后的操作，可以为空
      * @param completebanRunable   彻底禁止权限后的操作，可以为空
      */
     public void requestPermission(int id, String permission, Runnable allowableRunnable, Runnable disallowableRunnable, Runnable completebanRunable) {
