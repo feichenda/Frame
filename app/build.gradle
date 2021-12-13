@@ -6,11 +6,12 @@ android {
 
     defaultConfig {
 //        applicationId "com.lenovo.frame"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -24,16 +25,45 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    //打包apk名称配置
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            if(variant.name.equalsIgnoreCase('release')) {
+                outputFileName = "Frame-release.apk"
+            } else if(variant.name.equalsIgnoreCase('debug')) {
+                outputFileName = "Frame-dev.apk"
+            }
+        }
+    }
+
+    //打包配置
+    signingConfigs {
+        debug {
+            storeFile file('..\\app\\feizai.jks')
+            storePassword '123456'
+            keyAlias 'feizai_key'
+            keyPassword '123456'
+        }
+
+        release {
+            storeFile file('..\\app\\feizai.jks')
+            storePassword '123456'
+            keyAlias 'afeizai_key'
+            keyPassword '123456'
+        }
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+//    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.android.support:multidex:1.0.3'
+//    implementation "androidx.fragment:fragment-ktx:1.3.6"
 
     //recycleview
     implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha06'
@@ -93,5 +123,7 @@ dependencies {
 
     // 右滑返回
     implementation("me.imid.swipebacklayout.lib:library:1.1.0")
+
+    compileOnly files("libs\\layoutlib.jar")
 
 }
