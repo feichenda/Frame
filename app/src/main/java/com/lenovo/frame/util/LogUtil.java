@@ -19,6 +19,9 @@ public class LogUtil {
     private static final String TAG_METHOD_OUT      = "<FEIZAI-FRAME> OUT";
     private static final String TAG_LINE           	= "——————————————————————————";
 
+    //是否打印Verbose日志
+    private static boolean isShowVerboseLog = true;
+
     //是否打印Debug日志
     private static boolean isShowDebugLog = true;
 
@@ -32,7 +35,7 @@ public class LogUtil {
     private static boolean isShowErrorLog = true;
 
     /**
-     * 打印Debug日志
+     * 打印Verbose日志
      * @param content 内容
      */
     public static void v(String content) {
@@ -40,12 +43,12 @@ public class LogUtil {
     }
 
     /**
-     * 打印Debug日志
+     * 打印Verbose日志
      * @param content 内容
      * @param tag 自定义tag
      */
     public static void v(String tag, String content) {
-        if(isShowDebugLog) log(false, false, false, tag, content);
+        if(isShowVerboseLog) log(false, false, false, tag, content);
     }
 
     /**
