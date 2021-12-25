@@ -15,7 +15,7 @@ import java.io.IOException;
 public class MediaPlayerUtil {
     private static Context mContext;
     private MediaPlayer mMediaPlayer;
-    private static MediaPlayerListener mMediaPlayerListener;
+    private MediaPlayerListener mMediaPlayerListener;
     private String mFileName;
     private volatile Boolean isPrepared;
 
