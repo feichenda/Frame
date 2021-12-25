@@ -4,11 +4,46 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="open"
+        android:textSize="20sp"
+        android:id="@+id/open" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="network"
+        android:textSize="20sp"
+        android:id="@+id/net" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="text"
+        android:text="path"
         android:textSize="20sp"
-        android:id="@+id/main" />
+        android:id="@+id/path" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="play"
+        android:textSize="20sp"
+        android:id="@+id/play" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="pause"
+        android:textSize="20sp"
+        android:id="@+id/pause" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="stop"
+        android:textSize="20sp"
+        android:id="@+id/stop" />
 
 </LinearLayout>

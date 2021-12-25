@@ -147,6 +147,15 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
     }
 
     /**
+     * 活动跳转，有返回值
+     *
+     * @param intent 将要跳转的活动的intent
+     */
+    protected void registerForActivityResult(Intent intent) {
+        intentActivityResultLauncher.launch(intent);
+    }
+
+    /**
      * 请求单一权限
      * 过时方法
      *

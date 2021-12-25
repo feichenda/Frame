@@ -147,6 +147,7 @@ public class MediaPlayerUtil {
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
+        LogUtil.i("MediaPlayer release complete.");
     }
 
     public MediaPlayerUtil setMediaPlayerListener(MediaPlayerListener mediaPlayerListener) {
