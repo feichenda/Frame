@@ -301,10 +301,10 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
     protected Intent getAppDetailSettingIntent() {
         Intent localIntent = new Intent();
         localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (Build.VERSION.SDK_INT >= 9) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             localIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
             localIntent.setData(Uri.fromParts("package", getPackageName(), null));
-        } else if (Build.VERSION.SDK_INT <= 8) {
+        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO) {
             localIntent.setAction(Intent.ACTION_VIEW);
             localIntent.setClassName("com.android.settings", "com.android.settings.InstalledAppDetails");
             localIntent.putExtra("com.android.settings.ApplicationPkgName", getPackageName());
