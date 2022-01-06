@@ -26,6 +26,7 @@ public class NetworkUtil {
     /**
      * check NetworkAvailable
      * 检查网络是否可用
+     *
      * @param context
      * @return
      */
@@ -42,6 +43,7 @@ public class NetworkUtil {
 
     /**
      * 返回当前网络状态
+     *
      * @param context
      * @return
      */
@@ -53,7 +55,7 @@ public class NetworkUtil {
                 NetworkInfo networkinfo = connectivity.getActiveNetworkInfo();
                 if (networkinfo != null) {
                     if (networkinfo.isAvailable() && networkinfo.isConnected()) {
-                        if (!connectionNetwork())
+                        if (!ping(""))
                             return NET_CNNT_BAIDU_TIMEOUT;
                         else
                             return NET_CNNT_BAIDU_OK;
@@ -69,8 +71,45 @@ public class NetworkUtil {
     }
 
     /**
+     * check is5G
+     * 检测是否5G网
+     *
+     * @param context
+     * @return boolean
+     */
+    public static boolean is5G(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetInfo != null
+                && (activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_NR)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * check is4G
+     * 检测是否4G网
+     *
+     * @param context
+     * @return boolean
+     */
+    public static boolean is4G(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetInfo != null
+                && (activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_LTE)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * check is3G
      * 检测是否3G网
+     *
      * @param context
      * @return boolean
      */
@@ -79,24 +118,16 @@ public class NetworkUtil {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetInfo != null
-                && activeNetInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * isWifi
-     * 检测是否WiFi联网
-     * @param context
-     * @return boolean
-     */
-    public static boolean isWifi(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
-        if (activeNetInfo != null
-                && activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                && (activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_EHRPD
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_EVDO_0
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_EVDO_A
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_EVDO_B
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_HSDPA
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_HSPA
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_HSPAP
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_HSUPA
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_UMTS
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_TD_SCDMA)) {
             return true;
         }
         return false;
@@ -105,6 +136,7 @@ public class NetworkUtil {
     /**
      * is2G
      * 检测是否2G联网
+     *
      * @param context
      * @return boolean
      */
@@ -114,44 +146,73 @@ public class NetworkUtil {
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetInfo != null
                 && (activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_EDGE
-                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_GPRS || activeNetInfo
-                .getSubtype() == TelephonyManager.NETWORK_TYPE_CDMA)) {
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_1xRTT
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_IDEN
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_GSM
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_GPRS
+                || activeNetInfo.getSubtype() == TelephonyManager.NETWORK_TYPE_CDMA)) {
             return true;
         }
         return false;
     }
 
     /**
-     *  is wifi on
-     *  检测WiFi是否打开
+     * isWifi
+     * 检测是否WiFi联网
+     *
+     * @param context
+     * @return boolean
+     */
+    public static boolean isWifi(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetInfo != null
+                && (activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * is wifi on
+     * 检测WiFi是否打开
      */
     public static boolean isWifiEnabled(Context context) {
         ConnectivityManager mgrConn = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         TelephonyManager mgrTel = (TelephonyManager) context
                 .getSystemService(Context.TELEPHONY_SERVICE);
-        return ((mgrConn.getActiveNetworkInfo() != null && mgrConn
-                .getActiveNetworkInfo().getState() == NetworkInfo.State.CONNECTED) || mgrTel
-                .getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS);
+        return ((mgrConn.getActiveNetworkInfo() != null
+                && mgrConn.getActiveNetworkInfo().getState() == NetworkInfo.State.CONNECTED)
+                || mgrTel.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS);
     }
 
     /**
-     *ping "http://www.baidu.com"
+     * ping "http://www.baidu.com"
      * ping操作
+     *
      * @return
      */
-    static private boolean connectionNetwork() {
+    public static boolean ping(String url) {
+        if (url == null || "".equals(url)) {
+            url = "http://www.baidu.com";
+        }else {
+            if (!(url.contains("http://") || url.contains("https://"))){
+                url = "http://www.baidu.com";
+            }
+        }
         boolean result = false;
         HttpURLConnection httpUrl = null;
         try {
-            httpUrl = (HttpURLConnection) new URL("http://www.baidu.com")
-                    .openConnection();
-            httpUrl.setConnectTimeout(TIMEOUT);
+            httpUrl = (HttpURLConnection) new URL(url).openConnection();
+            httpUrl.setConnectTimeout(TIMEOUT);//3000ms超时
             httpUrl.connect();
             result = true;
         } catch (IOException e) {
+            e.printStackTrace();
         } finally {
-            if (null != httpUrl) {
+            if (httpUrl != null) {
                 httpUrl.disconnect();
             }
             httpUrl = null;
