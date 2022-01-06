@@ -1,10 +1,11 @@
-package com.lenovo.frame.base;
+package com.lenovo.frame.net.base;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.lenovo.frame.net.ExceptionHandle;
+import com.lenovo.frame.net.base.BaseModel;
 
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;

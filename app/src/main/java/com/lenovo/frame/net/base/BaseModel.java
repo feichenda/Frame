@@ -1,4 +1,4 @@
-package com.lenovo.frame.base;
+package com.lenovo.frame.net.base;
 
 import java.util.List;
 
