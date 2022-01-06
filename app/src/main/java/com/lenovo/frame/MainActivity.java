@@ -58,42 +58,41 @@ public class MainActivity extends BaseActivity implements MediaPlayerUtil.MediaP
         requestPermissions(permissions, new RequsetPermissionResultListener() {
 
             @Override
-            public void onAllowable(String[] permissions, int position) {
-                for (String permission : permissions) {
-                    LogUtil.i(TAG, permission);
-                    open.setOnClickListener(v -> {
-                        openFile();
-                    });
-                    play.setOnClickListener(v->{
-                        MediaPlayerUtil.getInstance(mContext).play();
-                    });
-                    pause.setOnClickListener(v->{
-                        MediaPlayerUtil.getInstance(mContext).pause();
-                    });
-                    stop.setOnClickListener(v->{
-                        MediaPlayerUtil.getInstance(mContext).stop();
-                    });
-                    net.setOnClickListener(v->{
-                        MediaPlayerUtil.getInstance(mContext)
-                                .setDataSource("http://freetyst.nf.migu.cn/public/product09/2018/05/09/2018%E5%B9%B405%E6%9C%8807%E6%97%A517%E7%82%B931%E5%88%86%E5%86%85%E5%AE%B9%E5%87%86%E5%85%A5%E7%91%9E%E5%BC%98%E5%88%A9%E9%9F%B358%E9%A6%96/%E6%AD%8C%E6%9B%B2%E4%B8%8B%E8%BD%BD/MP3_320_16_Stero/%E5%B9%B3%E5%87%A1%E4%B9%8B%E8%B7%AF-%E5%92%8C%E5%B9%B3%2B%E5%88%98%E7%BE%8E%E5%A8%B4.mp3")
-                                .setMediaPlayerListener(MainActivity.this)
-                                .play();
-                    });
-                }
+            public void onAllAllowable() {
+
             }
 
             @Override
-            public void onDisallowable(String[] permissions, int position) {
-                for (String permission : permissions) {
-                    LogUtil.i(TAG, permission);
-                }
+            public void onAllowable(String permission) {
+                LogUtil.i(TAG, permission);
+                open.setOnClickListener(v -> {
+                    openFile();
+                });
+                play.setOnClickListener(v->{
+                    MediaPlayerUtil.getInstance(mContext).play();
+                });
+                pause.setOnClickListener(v->{
+                    MediaPlayerUtil.getInstance(mContext).pause();
+                });
+                stop.setOnClickListener(v->{
+                    MediaPlayerUtil.getInstance(mContext).stop();
+                });
+                net.setOnClickListener(v->{
+                    MediaPlayerUtil.getInstance(mContext)
+                            .setDataSource("http://freetyst.nf.migu.cn/public/product09/2018/05/09/2018%E5%B9%B405%E6%9C%8807%E6%97%A517%E7%82%B931%E5%88%86%E5%86%85%E5%AE%B9%E5%87%86%E5%85%A5%E7%91%9E%E5%BC%98%E5%88%A9%E9%9F%B358%E9%A6%96/%E6%AD%8C%E6%9B%B2%E4%B8%8B%E8%BD%BD/MP3_320_16_Stero/%E5%B9%B3%E5%87%A1%E4%B9%8B%E8%B7%AF-%E5%92%8C%E5%B9%B3%2B%E5%88%98%E7%BE%8E%E5%A8%B4.mp3")
+                            .setMediaPlayerListener(MainActivity.this)
+                            .play();
+                });
             }
 
             @Override
-            public void onCompleteban(String[] permissions, int position) {
-                for (String permission : permissions) {
-                    LogUtil.i(TAG, permission);
-                }
+            public void onDisallowable(String permission) {
+                LogUtil.i(TAG, permission);
+            }
+
+            @Override
+            public void onCompleteban(String permission) {
+                LogUtil.i(TAG, permission);
             }
         });
         open.setOnClickListener(v -> {

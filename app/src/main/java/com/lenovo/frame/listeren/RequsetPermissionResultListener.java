@@ -6,9 +6,11 @@ package com.lenovo.frame.listeren;
  * Describe:
  */
 public interface RequsetPermissionResultListener {
-    void onAllowable(String[] permissions, int position);//允许
+    void onAllAllowable();//全部允许
 
-    void onDisallowable(String[] permissions, int position);//禁止
+    void onAllowable(String permission);//允许该权限
 
-    void onCompleteban(String[] permissions, int position);//完全禁止
+    void onDisallowable(String permission);//禁止该权限
+
+    void onCompleteban(String permission);//完全禁止该权限
 }

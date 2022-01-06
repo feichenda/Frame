@@ -41,12 +41,6 @@ import io.reactivex.rxjava3.disposables.Disposable;
 public abstract class BaseFragment extends Fragment implements IGetPageName {
 
     int resLayout;
-    //用户同意权限权限申请
-    public Map<Integer, Runnable> allowablePermissionRunnables = new HashMap<>();
-    //用户拒绝权限申请
-    public Map<Integer, Runnable> disallowablePermissionRunnables = new HashMap<>();
-    //用户彻底禁止权限申请
-    public Map<Integer, Runnable> completebanPermissionRunnables = new HashMap<>();
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -130,7 +124,7 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
      * @param requsetPermissionResultListener   请求权限结果回调监听
      */
     @Deprecated
-    public void requestPermission(int id, String permission, RequsetPermissionResultListener requsetPermissionResultListener) {
+    public void myRequestPermission(int id, String permission, RequsetPermissionResultListener requsetPermissionResultListener) {
         mRequsetPermissionResultListener = requsetPermissionResultListener;
         //版本判断
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -138,12 +132,12 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
             int checkCallPhonePermission = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), permission);
             if (checkCallPhonePermission != PackageManager.PERMISSION_GRANTED) {
                 //申请权限
-                ActivityCompat.requestPermissions(getActivity(), new String[]{permission}, id);
+               ActivityCompat.requestPermissions(getActivity(),new String[]{permission},id);
             } else {
-                requsetPermissionResultListener.onAllowable(new String[]{permission},1);
+                requsetPermissionResultListener.onAllowable(permission);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(new String[]{permission},1);
+            requsetPermissionResultListener.onAllowable(permission);
         }
     }
 
@@ -154,7 +148,7 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
      * @param permission 请求的权限
      * @param requsetPermissionResultListener 请求权限结果回调监听
      */
-    public void requestPermission(String permission, RequsetPermissionResultListener requsetPermissionResultListener) {
+    public void myRequestPermission(String permission, RequsetPermissionResultListener requsetPermissionResultListener) {
         mRequsetPermissionResultListener = requsetPermissionResultListener;
         //版本判断
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -164,10 +158,10 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
                 //申请权限
                 requestPermissionLauncher.launch(permission);
             } else {
-                requsetPermissionResultListener.onAllowable(new String[]{permission}, 1);
+                requsetPermissionResultListener.onAllowable(permission);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(new String[]{permission}, 1);
+            requsetPermissionResultListener.onAllowable(permission);
         }
     }
 
@@ -196,14 +190,14 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
                 }
             }
             if (count == 0) {
-                requsetPermissionResultListener.onAllowable(permissions, permissions.length - 1);
+                requsetPermissionResultListener.onAllAllowable();
             } else {
                 String[] strings = new String[count];
                 result.toArray(strings);
                 ActivityCompat.requestPermissions(getActivity(), strings, id);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(permissions, permissions.length - 1);
+            requsetPermissionResultListener.onAllAllowable();
         }
     }
 
@@ -229,7 +223,7 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
                 }
             }
             if (count == 0) {
-                requsetPermissionResultListener.onAllowable(permissions, permissions.length);
+                requsetPermissionResultListener.onAllAllowable();
             } else {
 
                 String[] strings = new String[count];
@@ -237,9 +231,10 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
                 requestPermissionsLauncher.launch(strings);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(permissions, permissions.length);
+            requsetPermissionResultListener.onAllAllowable();
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -251,14 +246,14 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
             boolean isTip = ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), permissions[i]);
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 if (isTip) {//表明用户没有彻底禁止弹出权限请求
-                    mRequsetPermissionResultListener.onDisallowable(permissions, i);
+                    mRequsetPermissionResultListener.onDisallowable(permissions[i]);
                 } else {//表明用户已经彻底禁止弹出权限请求
                     //这里一般会提示用户进入权限设置界面
-                    mRequsetPermissionResultListener.onCompleteban(permissions, i);
+                    mRequsetPermissionResultListener.onCompleteban(permissions[i]);
                 }
                 return;
             } else {
-                mRequsetPermissionResultListener.onAllowable(permissions, i);
+                mRequsetPermissionResultListener.onAllowable(permissions[i]);
             }
         }
     }
@@ -289,5 +284,9 @@ public abstract class BaseFragment extends Fragment implements IGetPageName {
      */
     protected void addDisposable(Disposable disposable) {
         compositeDisposable.add(disposable);
+    }
+
+    public void sendDateToFragment(String requestKey, FragmentResultListener listener) {
+        getParentFragmentManager().setFragmentResultListener(requestKey,this,listener);
     }
 }

@@ -174,10 +174,10 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 //申请权限
                 ActivityCompat.requestPermissions(BaseActivity.this, new String[]{permission}, id);
             } else {
-                requsetPermissionResultListener.onAllowable(new String[]{permission}, 1);
+                requsetPermissionResultListener.onAllowable(permission);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(new String[]{permission}, 1);
+            requsetPermissionResultListener.onAllowable(permission);
         }
     }
 
@@ -198,10 +198,10 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 //申请权限
                 requestPermissionLauncher.launch(permission);
             } else {
-                requsetPermissionResultListener.onAllowable(new String[]{permission}, 1);
+                requsetPermissionResultListener.onAllowable(permission);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(new String[]{permission}, 1);
+            requsetPermissionResultListener.onAllowable(permission);
         }
     }
 
@@ -230,14 +230,14 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 }
             }
             if (count == 0) {
-                requsetPermissionResultListener.onAllowable(permissions, permissions.length - 1);
+                requsetPermissionResultListener.onAllAllowable();
             } else {
                 String[] strings = new String[count];
                 result.toArray(strings);
                 ActivityCompat.requestPermissions(BaseActivity.this, strings, id);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(permissions, permissions.length - 1);
+            requsetPermissionResultListener.onAllAllowable();
         }
     }
 
@@ -263,7 +263,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 }
             }
             if (count == 0) {
-                requsetPermissionResultListener.onAllowable(permissions, permissions.length);
+                requsetPermissionResultListener.onAllAllowable();
             } else {
 
                 String[] strings = new String[count];
@@ -271,7 +271,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
                 requestPermissionsLauncher.launch(strings);
             }
         } else {
-            requsetPermissionResultListener.onAllowable(permissions, permissions.length);
+            requsetPermissionResultListener.onAllAllowable();
         }
     }
 
@@ -285,14 +285,14 @@ public abstract class BaseActivity extends AppCompatActivity implements SwipeBac
             boolean isTip = ActivityCompat.shouldShowRequestPermissionRationale(BaseActivity.this, permissions[i]);
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                 if (isTip) {//表明用户没有彻底禁止弹出权限请求
-                    mRequsetPermissionResultListener.onDisallowable(permissions, i);
+                    mRequsetPermissionResultListener.onDisallowable(permissions[i]);
                 } else {//表明用户已经彻底禁止弹出权限请求
                     //这里一般会提示用户进入权限设置界面
-                    mRequsetPermissionResultListener.onCompleteban(permissions, i);
+                    mRequsetPermissionResultListener.onCompleteban(permissions[i]);
                 }
                 return;
             } else {
-                mRequsetPermissionResultListener.onAllowable(permissions, i);
+                mRequsetPermissionResultListener.onAllowable(permissions[i]);
             }
         }
     }
